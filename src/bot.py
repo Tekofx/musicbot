@@ -112,6 +112,8 @@ class YTDLSource(discord.PCMVolumeTransformer):
     def __str__(self):
         return "**{0.title}** by **{0.uploader}**".format(self)
 
+    # TODO: Add skip on index
+    # TODO: Normalize volume
     @classmethod
     async def create_source(
         cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None
@@ -326,6 +328,47 @@ class Music(commands.Cog):
 
         return state
 
+    async def get_spotify_songs_from_playlist(self, playlist_url: str):
+        """Get songs from a Spotify playlist
+
+        Args:
+            playlist_url (str)
+
+        Returns:
+            list: list with str containing song name and artist
+        """
+        results = sp.playlist_tracks(playlist_url)
+        tracks = results["items"]
+        output = []
+        while results["next"]:
+            results = sp.next(results)
+            tracks.extend(results["items"])
+        for track in tracks:
+            output.append(
+                track["track"]["artists"][0]["name"] + " " + track["track"]["name"]
+            )
+        return output
+
+    async def get_spotify_songs_from_album(self, album_url: str):
+        """Get songs from a Spotify album
+
+        Args:
+            album_url (str)
+
+        Returns:
+            list: list with str containing song name and artist
+        """
+        results = sp.album_tracks(album_url)
+        tracks = results["items"]
+        output = []
+        while results["next"]:
+            results = sp.next(results)
+            tracks.extend(results["items"])
+
+        for track in tracks:
+            output.append(track["artists"][0]["name"] + " " + track["name"])
+        return output
+
     def cog_unload(self):
         for state in self.voice_states.values():
             self.bot.loop.create_task(state.stop())
@@ -537,21 +580,16 @@ class Music(commands.Cog):
         async with ctx.typing():
 
             if "spotify" in search:
-                results = sp.playlist_tracks(search)
-                tracks = results["items"]
-                while results["next"]:
-                    results = sp.next(results)
-                    tracks.extend(results["items"])
-                await ctx.send("Adding songs to queue")
+                if "album" in search:
+                    tracks = await self.get_spotify_songs_from_album(search)
+
+                if "playlist" in search:
+                    tracks = await self.get_spotify_songs_from_playlist(search)
+
                 for track in tracks:
-                    search = (
-                        track["track"]["artists"][0]["name"]
-                        + " "
-                        + track["track"]["name"]
-                    )
                     try:
                         source = await YTDLSource.create_source(
-                            ctx, search, loop=self.bot.loop
+                            ctx, track, loop=self.bot.loop
                         )
 
                     except YTDLError as e:
