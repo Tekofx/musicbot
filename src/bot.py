@@ -309,6 +309,7 @@ class VoiceState:
 
     async def stop(self):
         self.songs.clear()
+        # TODO: Eliminar cola
 
         if self.voice:
             await self.voice.disconnect()
@@ -422,7 +423,6 @@ class Music(commands.Cog):
         ctx.voice_state.voice = await destination.connect()
 
     @commands.command(name="leave", aliases=["disconnect"])
-    @commands.has_permissions(manage_guild=True)
     async def _leave(self, ctx: commands.Context):
         """Clears the queue and leaves the voice channel."""
 
@@ -643,6 +643,12 @@ async def on_command_error(context, error):
             "Error: Comanmand not found use `-help` to see the available commands"
         )
 
+
+@bot.event
+async def on_voice_state_update(member: discord.Member, before, after):
+    if before.channel and not after.channel and member.id == bot.user.id:
+        await bot.logout()
+        await bot.login(token, bot=True)
 
 @bot.event
 async def on_ready():
