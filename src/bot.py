@@ -15,6 +15,7 @@ import asyncio
 import functools
 import itertools
 import math
+from operator import le
 import random
 
 import discord
@@ -586,6 +587,9 @@ class Music(commands.Cog):
                 if "playlist" in search:
                     tracks = await self.get_spotify_songs_from_playlist(search)
 
+                count = 1
+                message = await ctx.send("Adding songs")
+
                 for track in tracks:
                     try:
                         source = await YTDLSource.create_source(
@@ -598,10 +602,16 @@ class Music(commands.Cog):
                                 str(e)
                             )
                         )
+                        await message.delete()
 
                     else:
                         song = Song(source)
                         await ctx.voice_state.songs.put(song)
+                        string = "Added song {}/".format(count)
+                        string = string + str(len(tracks))
+                        await message.edit(content=string)
+
+                        count += 1
                 await ctx.send("Enqueued all songs")
             else:
                 try:
@@ -649,6 +659,7 @@ async def on_voice_state_update(member: discord.Member, before, after):
     if before.channel and not after.channel and member.id == bot.user.id:
         await bot.logout()
         await bot.login(token, bot=True)
+
 
 @bot.event
 async def on_ready():
