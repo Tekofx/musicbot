@@ -1,0 +1,10 @@
+version: '3'
+services:
+  musicbot:
+    image: musicbot
+    container_name: musicbot
+    ports:
+      - "100:80"
+    volumes:
+      - ./env:/bot/env
+    restart: unless-stopped

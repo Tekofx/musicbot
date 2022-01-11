@@ -2,6 +2,7 @@ FROM python:3.8-slim-buster
 
 WORKDIR /bot/
 COPY requirements.txt /tmp/
+COPY src /bot/src
 
 RUN apt-get update \
     && apt-get install build-essential nghttp2 libnghttp2-dev libffi-dev libssl-dev ffmpeg -y --no-install-recommends\
