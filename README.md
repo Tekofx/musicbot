@@ -1,5 +1,5 @@
 <h1 align="center">Musicbot</h1>
-<p align="center">Another music bot written in python</p>
+<p align="center">Another discord music bot written in python</p>
 
 ## How to run
 - Set a folder for musicbot and copy to it docker-compose.yml
