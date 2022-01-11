@@ -28,10 +28,14 @@ import os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
+# Set workdir
+path = os.path.dirname(os.path.abspath(__file__))
+working_dir = os.path.dirname(path)
+os.chdir(working_dir)
+
 # Dotenv
-load_dotenv("../env/.env")
+load_dotenv("./env/.env")
 token = os.getenv("DISCORD_TOKEN")
-print(token)
 spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
 spotify_client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
 prefix = os.getenv("PREFIX")
