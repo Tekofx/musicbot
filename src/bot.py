@@ -27,6 +27,13 @@ import setproctitle
 import os
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+import coloredlogs
+
+# Set logging
+coloredlogs.install()
+log = logging.getLogger(__name__)
+log.setLevel("INFO")
+logging.info("Set up logs")
 
 # Set workdir
 path = os.path.dirname(os.path.abspath(__file__))
@@ -34,7 +41,7 @@ working_dir = os.path.dirname(path)
 os.chdir(working_dir)
 
 # Dotenv
-load_dotenv("./env/.env")
+load_dotenv("env/.env")
 token = os.getenv("DISCORD_TOKEN")
 spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
 spotify_client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
@@ -47,7 +54,6 @@ sp = spotipy.Spotify(
     )
 )
 
-log = logging.getLogger(__name__)
 
 # Process name
 setproctitle.setproctitle("musicbot")
@@ -690,7 +696,7 @@ async def on_voice_state_update(member: nextcord.Member, before, after):
 
 @bot.event
 async def on_ready():
-    print("Logged in as:\n{0.user.name}\n{0.user.id}".format(bot))
+    log.info("Logged in as: {}".format(bot.user.name))
 
 
 bot.run(str(token))
