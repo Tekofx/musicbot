@@ -29,7 +29,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 
 # Dotenv
-load_dotenv()
+load_dotenv("../env/.env")
 token = os.getenv("DISCORD_TOKEN")
 print(token)
 spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
