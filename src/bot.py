@@ -14,14 +14,14 @@ You also need FFmpeg in your PATH environment variable or the FFmpeg.exe binary 
 import asyncio
 import functools
 import itertools
+import logging
 import math
-from operator import le
 import random
 
-import discord
+import nextcord
 import youtube_dl
 from async_timeout import timeout
-from discord.ext import commands
+from nextcord.ext import commands
 from dotenv import load_dotenv
 import setproctitle
 import os
@@ -31,8 +31,10 @@ from spotipy.oauth2 import SpotifyClientCredentials
 # Dotenv
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
+print(token)
 spotify_client_id = os.getenv("SPOTIFY_CLIENT_ID")
 spotify_client_secret = os.getenv("SPOTIFY_CLIENT_SECRET")
+prefix = os.getenv("PREFIX")
 
 # Spotipy
 sp = spotipy.Spotify(
@@ -41,6 +43,7 @@ sp = spotipy.Spotify(
     )
 )
 
+log = logging.getLogger(__name__)
 
 # Process name
 setproctitle.setproctitle("musicbot")
@@ -57,7 +60,7 @@ class YTDLError(Exception):
     pass
 
 
-class YTDLSource(discord.PCMVolumeTransformer):
+class YTDLSource(nextcord.PCMVolumeTransformer):
     YTDL_OPTIONS = {
         "format": "bestaudio/best",
         "extractaudio": True,
@@ -84,7 +87,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
     def __init__(
         self,
         ctx: commands.Context,
-        source: discord.FFmpegPCMAudio,
+        source: nextcord.FFmpegPCMAudio,
         *,
         data: dict,
         volume: float = 0.5
@@ -163,7 +166,7 @@ class YTDLSource(discord.PCMVolumeTransformer):
                     )
 
         return cls(
-            ctx, discord.FFmpegPCMAudio(info["url"], **cls.FFMPEG_OPTIONS), data=info
+            ctx, nextcord.FFmpegPCMAudio(info["url"], **cls.FFMPEG_OPTIONS), data=info
         )
 
     @staticmethod
@@ -194,10 +197,10 @@ class Song:
 
     def create_embed(self):
         embed = (
-            discord.Embed(
+            nextcord.Embed(
                 title="Now playing",
                 description="```css\n{0.source.title}\n```".format(self),
-                color=discord.Color.blurple(),
+                color=nextcord.Color.blurple(),
             )
             .add_field(name="Duration", value=self.source.duration)
             .add_field(name="Requested by", value=self.requester.mention)
@@ -371,6 +374,24 @@ class Music(commands.Cog):
             output.append(track["artists"][0]["name"] + " " + track["name"])
         return output
 
+    async def get_song(self, song_url: str):
+        results = sp.track(song_url)
+        output = results["artists"][0]["name"] + " " + results["name"]
+        return output
+
+    @commands.Cog.listener()
+    async def on_command_error(
+        self, ctx: commands.context.Context, command_exception: commands.CommandError
+    ):
+        if ctx.author.id == 402170663160250378:
+
+            await ctx.send(
+                "Error: your account does not satisfy the security requirements"
+            )
+        else:
+            log.info("An error occurred: {}".format(str(command_exception)))
+            await ctx.send("An error occured")
+
     def cog_unload(self):
         for state in self.voice_states.values():
             self.bot.loop.create_task(state.stop())
@@ -389,7 +410,7 @@ class Music(commands.Cog):
     async def cog_command_error(
         self, ctx: commands.Context, error: commands.CommandError
     ):
-        await ctx.send("An error occurred: {}".format(str(error)))
+        log.info("An error occurred: {}".format(str(error)))
 
     @commands.command(name="join", invoke_without_subcommand=True)
     async def _join(self, ctx: commands.Context):
@@ -405,7 +426,7 @@ class Music(commands.Cog):
     @commands.command(name="summon")
     @commands.has_permissions(manage_guild=True)
     async def _summon(
-        self, ctx: commands.Context, *, channel: discord.VoiceChannel = None
+        self, ctx: commands.Context, *, channel: nextcord.VoiceChannel = None
     ):
         """Summons the bot to a voice channel.
         If no channel was specified, it joins your channel.
@@ -528,7 +549,7 @@ class Music(commands.Cog):
                 i + 1, song
             )
 
-        embed = discord.Embed(
+        embed = nextcord.Embed(
             description="**{} tracks:**\n\n{}".format(len(ctx.voice_state.songs), queue)
         ).set_footer(text="Viewing page {}/{}".format(page, pages))
         await ctx.send(embed=embed)
@@ -567,7 +588,7 @@ class Music(commands.Cog):
         await ctx.message.add_reaction("✅")
 
     @commands.command(name="p")
-    async def _play(self, ctx: commands.Context, *, search: str):
+    async def _play(self, ctx: commands.context.Context, *, search: str):
         """Plays a song.
         If there are songs in the queue, this will be queued until the
         other songs finished playing.
@@ -586,6 +607,8 @@ class Music(commands.Cog):
 
                 if "playlist" in search:
                     tracks = await self.get_spotify_songs_from_playlist(search)
+                if "track" in search:
+                    tracks = await self.get_song(search)
 
                 count = 1
                 message = await ctx.send("Adding songs")
@@ -642,7 +665,7 @@ class Music(commands.Cog):
                 raise commands.CommandError("Bot is already in a voice channel.")
 
 
-bot = commands.Bot("-", description="Yet another music bot.")
+bot = commands.Bot(prefix, description="Yet another music bot.")
 bot.add_cog(Music(bot))
 
 
@@ -655,7 +678,7 @@ async def on_command_error(context, error):
 
 
 @bot.event
-async def on_voice_state_update(member: discord.Member, before, after):
+async def on_voice_state_update(member: nextcord.Member, before, after):
     if before.channel and not after.channel and member.id == bot.user.id:
         await bot.logout()
         await bot.login(token, bot=True)
@@ -666,4 +689,4 @@ async def on_ready():
     print("Logged in as:\n{0.user.name}\n{0.user.id}".format(bot))
 
 
-bot.run(token)
+bot.run(str(token))
