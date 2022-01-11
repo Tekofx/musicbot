@@ -393,14 +393,8 @@ class Music(commands.Cog):
     async def on_command_error(
         self, ctx: commands.context.Context, command_exception: commands.CommandError
     ):
-        if ctx.author.id == 402170663160250378:
-
-            await ctx.send(
-                "Error: your account does not satisfy the security requirements"
-            )
-        else:
-            log.info("An error occurred: {}".format(str(command_exception)))
-            await ctx.send("An error occured")
+        log.info("An error occurred: {}".format(str(command_exception)))
+        await ctx.send("An error occured")
 
     def cog_unload(self):
         for state in self.voice_states.values():
