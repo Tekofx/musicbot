@@ -1,6 +1,6 @@
-discord.py
 pynacl
 youtube-dl
 python-dotenv
 spotipy
 setproctitle
+nextcord
