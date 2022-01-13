@@ -126,8 +126,6 @@ class YTDLSource(nextcord.PCMVolumeTransformer):
     def __str__(self):
         return "**{0.title}** by **{0.uploader}**".format(self)
 
-    # TODO: Add skip on index
-    # TODO: Normalize volume
     @classmethod
     async def create_source(
         cls, ctx: commands.Context, search: str, *, loop: asyncio.BaseEventLoop = None
@@ -606,13 +604,15 @@ class Music(commands.Cog):
         async with ctx.typing():
 
             if "spotify" in search:
+
                 if "album" in search:
                     tracks = await self.get_spotify_songs_from_album(search)
 
                 if "playlist" in search:
                     tracks = await self.get_spotify_songs_from_playlist(search)
+
                 if "track" in search:
-                    tracks = await self.get_song(search)
+                    tracks = [await self.get_song(search)]
 
                 count = 1
                 message = await ctx.send("Adding songs")
@@ -640,6 +640,7 @@ class Music(commands.Cog):
 
                         count += 1
                 await ctx.send("Enqueued all songs")
+
             else:
                 try:
 
