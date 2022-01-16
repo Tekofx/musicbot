@@ -5,7 +5,7 @@ COPY requirements.txt /tmp/
 COPY src /bot/src
 
 RUN apt-get update \
-    && apt-get install build-essential nghttp2 libnghttp2-dev libffi-dev libssl-dev ffmpeg -y --no-install-recommends\
+    && apt-get install build-essential libffi-dev ffmpeg -y --no-install-recommends\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*\
     && pip3 install -r /tmp/requirements.txt \
