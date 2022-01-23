@@ -594,6 +594,63 @@ class Music(commands.Cog):
         ctx.voice_state.loop = not ctx.voice_state.loop
         await ctx.message.add_reaction("✅")
 
+    async def process_spotify_query(self, ctx: commands.Context, search: str):
+        """Adds songs from a spotify query to the queue.
+
+        Args:
+           ctx (commands.Context): The context of the command
+           search (str): spotify link
+        """
+        if "track" in search:
+            track = await self.get_song(search)
+            try:
+                source = await YTDLSource.create_source(ctx, track, loop=self.bot.loop)
+
+            except YTDLError as e:
+                await ctx.send(
+                    "An error occurred while processing this request: {}".format(str(e))
+                )
+
+            else:
+                song = Song(source)
+                await ctx.voice_state.songs.put(song)
+                await ctx.send("Enqueued {}".format(str(source)))
+
+        else:
+
+            if "album" in search:
+                tracks = await self.get_spotify_songs_from_album(search)
+
+            if "playlist" in search:
+                tracks = await self.get_spotify_songs_from_playlist(search)
+
+            count = 1
+            message = await ctx.send("Adding songs")
+
+            for track in tracks:
+                try:
+                    source = await YTDLSource.create_source(
+                        ctx, track, loop=self.bot.loop
+                    )
+
+                except YTDLError as e:
+                    await ctx.send(
+                        "An error occurred while processing this request: {}".format(
+                            str(e)
+                        )
+                    )
+                    await message.delete()
+
+                else:
+                    song = Song(source)
+                    await ctx.voice_state.songs.put(song)
+                    string = "Added song {}/".format(count)
+                    string = string + str(len(tracks))
+                    await message.edit(content=string)
+
+                    count += 1
+            await ctx.send("Enqueued all songs")
+
     @commands.command(name="p", aliases=["play", "P"])
     async def _play(self, ctx: commands.context.Context, *, search: str):
         """Plays a song.
@@ -610,41 +667,7 @@ class Music(commands.Cog):
 
             if "spotify" in search:
 
-                if "album" in search:
-                    tracks = await self.get_spotify_songs_from_album(search)
-
-                if "playlist" in search:
-                    tracks = await self.get_spotify_songs_from_playlist(search)
-
-                if "track" in search:
-                    tracks = [await self.get_song(search)]
-
-                count = 1
-                message = await ctx.send("Adding songs")
-
-                for track in tracks:
-                    try:
-                        source = await YTDLSource.create_source(
-                            ctx, track, loop=self.bot.loop
-                        )
-
-                    except YTDLError as e:
-                        await ctx.send(
-                            "An error occurred while processing this request: {}".format(
-                                str(e)
-                            )
-                        )
-                        await message.delete()
-
-                    else:
-                        song = Song(source)
-                        await ctx.voice_state.songs.put(song)
-                        string = "Added song {}/".format(count)
-                        string = string + str(len(tracks))
-                        await message.edit(content=string)
-
-                        count += 1
-                await ctx.send("Enqueued all songs")
+                await self.process_spotify_query(ctx, search)
 
             else:
                 try:
