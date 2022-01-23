@@ -392,7 +392,12 @@ class Music(commands.Cog):
         self, ctx: commands.context.Context, command_exception: commands.CommandError
     ):
         log.info("An error occurred: {}".format(str(command_exception)))
-        await ctx.send("An error occured")
+
+        if isinstance(command_exception, commands.MissingRequiredArgument):
+            await ctx.send("Missing required argument")
+
+        if isinstance(command_exception, commands.BadArgument):
+            await ctx.send("Bad argument")
 
     def cog_unload(self):
         for state in self.voice_states.values():
