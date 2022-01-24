@@ -50,10 +50,14 @@ class Music(commands.Cog):
         results = sp.playlist_tracks(playlist_url)
         tracks = results["items"]
         output = []
+        count = 0
+
         while results["next"]:
             results = sp.next(results)
             tracks.extend(results["items"])
         for track in tracks:
+            if count == 50:
+                return output
             output.append(
                 track["track"]["artists"][0]["name"] + " " + track["track"]["name"]
             )
