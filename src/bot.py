@@ -55,10 +55,13 @@ bot.activity = nextcord.Activity(
 
 
 @bot.event
-async def on_command_error(context, error):
-    if isinstance(error, commands.CommandNotFound):
+async def on_command_error(context: commands.Context, error: commands.CommandError):
+    if (
+        isinstance(error, commands.CommandNotFound)
+        and "/" not in context.message.content
+    ):
         await context.send(
-            "Error: Comanmand not found use `-help` to see the available commands"
+            "Error: Command not found use `-help` to see the available commands"
         )
 
 

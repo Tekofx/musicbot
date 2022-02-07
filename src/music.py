@@ -92,12 +92,14 @@ class Music(commands.Cog):
     async def on_command_error(
         self, ctx: commands.context.Context, command_exception: commands.CommandError
     ):
-        log.info("An error occurred: {}".format(str(command_exception)))
 
         if isinstance(command_exception, commands.MissingRequiredArgument):
+            log.error("Missing required argument: {}".format(str(command_exception)))
             await ctx.send("Missing required argument")
 
         if isinstance(command_exception, commands.BadArgument):
+            log.error("Bad argument: {}".format(str(command_exception)))
+
             await ctx.send("Bad argument")
 
     def cog_unload(self):
@@ -118,7 +120,7 @@ class Music(commands.Cog):
     async def cog_command_error(
         self, ctx: commands.Context, error: commands.CommandError
     ):
-        log.info("An error occurred: {}".format(str(error)))
+        log.error("An error occurred: {}".format(str(error)))
 
     @commands.command(name="join", invoke_without_subcommand=True)
     async def _join(self, ctx: commands.Context):
