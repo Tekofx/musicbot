@@ -48,6 +48,10 @@ youtube_dl.utils.bug_reports_message = lambda: ""
 
 bot = commands.Bot(prefix, description="Yet another music bot.")
 bot.add_cog(Music(bot))
+bot.status = nextcord.Status.online
+bot.activity = nextcord.Activity(
+    name="Cool music", type=nextcord.ActivityType.listening
+)
 
 
 @bot.event
