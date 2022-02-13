@@ -8,7 +8,7 @@ RUN apt-get update \
     && apt-get install build-essential libffi-dev ffmpeg -y --no-install-recommends\
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*\
-    && pip3 install -r /tmp/requirements.txt \
+    && pip3 install -r /tmp/requirements.txt --no-cache-dir\
     && rm /tmp/requirements.txt
 
 

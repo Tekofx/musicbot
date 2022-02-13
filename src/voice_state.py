@@ -83,7 +83,6 @@ class VoiceState:
 
     async def stop(self):
         self.songs.clear()
-        # TODO: Eliminar cola
 
         if self.voice:
             await self.voice.disconnect()

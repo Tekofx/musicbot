@@ -66,14 +66,6 @@ async def on_command_error(context: commands.Context, error: commands.CommandErr
 
 
 @bot.event
-async def on_voice_state_update(member: nextcord.Member, before, after):
-    if before.channel and not after.channel and member.id == bot.user.id:
-        """await bot.
-        await bot.login(token, bot=True)"""
-        pass
-
-
-@bot.event
 async def on_ready():
     log.info("Logged in as: {}".format(bot.user.name))
 
