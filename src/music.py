@@ -116,6 +116,7 @@ class Music(commands.Cog):
 
     async def cog_before_invoke(self, ctx: commands.Context):
         ctx.voice_state = self.get_voice_state(ctx)
+        ctx.voice_state.songs.clear()
 
     async def cog_command_error(
         self, ctx: commands.Context, error: commands.CommandError
