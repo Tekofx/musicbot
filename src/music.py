@@ -116,7 +116,6 @@ class Music(commands.Cog):
 
     async def cog_before_invoke(self, ctx: commands.Context):
         ctx.voice_state = self.get_voice_state(ctx)
-        ctx.voice_state.songs.clear()
 
     async def cog_command_error(
         self, ctx: commands.Context, error: commands.CommandError
@@ -363,9 +362,9 @@ class Music(commands.Cog):
         This command automatically searches from various sites if no URL is provided.
         A list of these sites can be found here: https://rg3.github.io/youtube-dl/supportedsites.html
         """
-
         if not ctx.voice_state.voice:
             await ctx.invoke(self._join)
+            ctx.voice_state.songs.clear()
 
         async with ctx.typing():
 
