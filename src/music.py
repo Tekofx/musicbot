@@ -364,7 +364,6 @@ class Music(commands.Cog):
         """
         if not ctx.voice_state.voice:
             await ctx.invoke(self._join)
-            ctx.voice_state.songs.clear()
 
         async with ctx.typing():
 
