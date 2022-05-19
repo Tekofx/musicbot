@@ -60,9 +60,11 @@ async def on_command_error(context: commands.Context, error: commands.CommandErr
         isinstance(error, commands.CommandNotFound)
         and "/" not in context.message.content
     ):
-        await context.send(
+        msg = await context.send(
             "Error: Command not found use `-help` to see the available commands"
         )
+
+        await msg.delete(delay=5)
 
 
 @bot.event
