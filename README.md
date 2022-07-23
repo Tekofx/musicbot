@@ -1,4 +1,8 @@
 <h1 align="center">Musicbot</h1>
+<p align="center">
+    <img  width=25% src="./assets/logo.png"  >
+</p>
+
 <p align="center">Another discord music bot written in python</p>
 
 ## Setup
