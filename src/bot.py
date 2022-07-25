@@ -45,8 +45,13 @@ setproctitle.setproctitle("musicbot")
 # Silence useless bug reports messages
 youtube_dl.utils.bug_reports_message = lambda: ""
 
-
-bot = commands.Bot(prefix, description="Yet another music bot.")
+intents = nextcord.Intents.default()
+intents.message_content = True
+bot = commands.Bot(
+    prefix,
+    description="Yet another music bot.",
+    intents=intents,
+)
 bot.add_cog(Music(bot))
 bot.status = nextcord.Status.online
 bot.activity = nextcord.Activity(
