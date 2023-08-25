@@ -1,9 +1,13 @@
+<h2 align="center">This project has been archived. To look for a replacement see <a href="https://github.com/tekofx/evobot">Evobot</a></h2>
 <h1 align="center">Musicbot</h1>
+
 <p align="center">
     <img  width=25% src="./assets/logo.png"  >
 </p>
 
 <p align="center">Another discord music bot written in python</p>
+
+
 
 ## Setup
 - Set a folder for musicbot and copy to it docker-compose.yml
